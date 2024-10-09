@@ -1,4 +1,4 @@
-package A1;
+package A2;
 import java.io.Serializable;
 
 class Accommodation implements Serializable {

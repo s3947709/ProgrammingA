@@ -1,4 +1,4 @@
-package A1;
+package A2;
 
 public class MtBullerAdmin {
     public static void main(String[] args) {

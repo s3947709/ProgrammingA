@@ -1,4 +1,4 @@
-package A1;
+package A2;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
