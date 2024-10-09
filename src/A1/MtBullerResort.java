@@ -122,7 +122,7 @@ class MtBullerResort {
 
             System.out.println("Are your skills at Beginner, Intermediate, or Expert level for skiing? ");
             String skillevel = input.nextLine().toLowerCase();
-
+            
             Customer customer = new Customer(fname, lname, skillevel);
             customers.add(customer);
 
