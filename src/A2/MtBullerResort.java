@@ -6,9 +6,6 @@ import java.io.*;
 import java.time.LocalDate;
 
 class MtBullerResort {
-    private ObjectInputStream ois;
-    private ObjectOutputStream oos;
-
     private ArrayList<Customer> customers;
     private ArrayList<Accommodation> accommodations;
     private ArrayList<TravelPackage> travelPackages;
@@ -326,81 +323,74 @@ class MtBullerResort {
 
     public void savePackage() {
         try {
-            oos = new ObjectOutputStream(new FileOutputStream("packages.dat"));
-
+            FileOutputStream fos = new FileOutputStream("packages.dat");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+    
+            // Write the size of each list first
             oos.writeInt(travelPackages.size());
-            for (TravelPackage travelPackage : travelPackages) {
-                oos.writeObject(travelPackage);
+            for (TravelPackage tp : travelPackages) {
+                oos.writeObject(tp);
             }
-
+    
             oos.writeInt(customers.size());
-            for (Customer customer : customers) {
-                oos.writeObject(customer);
+            for (Customer c : customers) {
+                oos.writeObject(c);
             }
-
+    
             oos.writeInt(accommodations.size());
-            for (Accommodation accommodation : accommodations){
-                oos.writeObject(accommodation);
+            for (Accommodation a : accommodations) {
+                oos.writeObject(a);
             }
-
+    
             oos.close();
-            System.out.println("Packages and customers have been saved successfully.");
+            System.out.println("Packages, customers, and accommodations have been saved successfully.");
         } catch (IOException e) {
-            System.out.println("Error saving packages and customers.");
+            System.out.println("Error saving packages, customers, and accommodations.");
             e.printStackTrace();
         }
     }
+    
 
 
     public void readPackage() {
         try {
-            ois = new ObjectInputStream(new FileInputStream("packages.dat"));
+            FileInputStream fis = new FileInputStream("packages.dat");
+            ObjectInputStream ois = new ObjectInputStream(fis);
     
+            // Read the number of travel packages, customers, and accommodations
             int numTravelPackages = ois.readInt();
             for (int i = 0; i < numTravelPackages; i++) {
-                try {
-                    Object obj = ois.readObject();
-                    if (obj instanceof TravelPackage) {
-                        TravelPackage travelPackage = (TravelPackage) obj;
-                        travelPackages.add(travelPackage);
-                    } else {
-                        System.out.println("Unexpected object type found while reading TravelPackage.");
-                    }
-                } catch (ClassCastException e) {
-                    System.out.println("ClassCastException while reading TravelPackage.");
-                }
+                travelPackages.add((TravelPackage) ois.readObject());
             }
-
+    
             int numCustomers = ois.readInt();
             for (int i = 0; i < numCustomers; i++) {
-                try {
-                    Object obj = ois.readObject();
-                    if (obj instanceof Customer) {
-                        Customer customer = (Customer) obj;
-                        boolean exists = false;
-                        
-                        for (Customer existingCustomer : customers) {
-                            if (existingCustomer.getCustID() == customer.getCustID()) {
-                                exists = true;
-                                break;
-                            }
-                        }
-                        if (!exists) {
-                            customers.add(customer);
-                        }
-                    } else {
-                        System.out.println("Unexpected object type found while reading Customer.");
+                Customer customer = (Customer) ois.readObject();
+                boolean exists = false;
+    
+                // Check if the customer already exists in the list to avoid duplication
+                for (Customer existingCustomer : customers) {
+                    if (existingCustomer.getCustID() == customer.getCustID()) {
+                        exists = true;
+                        break;
                     }
-                } catch (ClassCastException e) {
-                    System.out.println("ClassCastException while reading Customer.");
+                }
+                if (!exists) {
+                    customers.add(customer);
                 }
             }
-
+    
+            int numAccommodations = ois.readInt();
+            for (int i = 0; i < numAccommodations; i++) {
+                accommodations.add((Accommodation) ois.readObject());
+            }
+    
             ois.close();
-            System.out.println("Packages and customers have been loaded successfully.");
+            System.out.println("Packages, customers, and accommodations have been loaded successfully.");
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Error reading packages and customers.");
+            System.out.println("Error reading packages, customers, and accommodations.");
             e.printStackTrace();
         }
     }
+    
 }

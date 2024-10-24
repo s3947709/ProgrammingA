@@ -17,3 +17,9 @@ https://www.mtbuller.com.au/winter
 - Your GUI “ResortGUI” class, in the same way as the MtBullerResort class in the Assignment 1, will have ArrayList of customers, ArrayList of accommodations, and ArrayList of travel packages. It can also have a main method to run your GUI
 
 - You can reuse most of methods created in a MtBullerResort class in Assignment 1. Some methods will need modifications to read from text fields and display data on components
+
+Notes From A1:
+1. validate skill level
+2. duplicate lift pass logic communicate it to the user clearly
+
+Update those to start work on A2
