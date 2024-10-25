@@ -1,396 +1,218 @@
 package A2;
-import java.util.Scanner;
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.io.*;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-class MtBullerResort {
-    private ArrayList<Customer> customers;
-    private ArrayList<Accommodation> accommodations;
-    private ArrayList<TravelPackage> travelPackages;
+import javax.swing.JTextArea;
 
-    Scanner input = new Scanner(System.in);
+public class MtBullerResort {
 
-    public Customer getCustomerByID(int customerID) {
+    private List<Accommodation> accommodations;
+    private List<Customer> customers;
+    private List<TravelPackage> travelPackages;
+
+    public MtBullerResort() {
+        accommodations = new ArrayList<>();
+        customers = new ArrayList<>();
+        travelPackages = new ArrayList<>();
+
+        // Initialize some default accommodations
+        accommodations.add(new Accommodation(1,"Lodge (2ppl)", 295.00,true));
+        accommodations.add(new Accommodation(2,"Hotel (4ppl)", 330.00,true));
+        accommodations.add(new Accommodation(3,"Appartment (6ppl)", 802.00,true));
+        accommodations.add(new Accommodation(4,"Lodge (4ppl)", 192.00,true));
+        accommodations.add(new Accommodation(5,"Hotel (2ppl)", 260.00,true));
+        accommodations.add(new Accommodation(6,"Appartment (4ppl)", 540.00,true));
+        accommodations.add(new Accommodation(7,"Lodge (2ppl)", 210.00,true));
+        accommodations.add(new Accommodation(8,"Lodge (5ppl)", 415.00,true));
+        accommodations.add(new Accommodation(9,"Appartment Penthouse (8ppl)", 1858.00,true));
+        accommodations.add(new Accommodation(10,"Hotel (4ppl)", 308.00,true));
+
+        // Initialize some default customers
+        customers.add(new Customer(1,"Jarrod", "Parker", "beginner"));
+        customers.add(new Customer(2,"Xavier", "Smith", "intermediate"));
+        customers.add(new Customer(3,"Allison", "Johnson", "expert"));
+    }
+
+    // Accommodation-related methods
+    public void displayAllAccommodations(JTextArea outputArea) {
+        outputArea.setText(""); // Clear the text area first
+        outputArea.append("All Accommodations:\n");
+        for (Accommodation accommodation : accommodations) {
+            outputArea.append(accommodation.toString() + "\n");
+        }
+    }
+
+    // Method to display available accommodations in a JTextArea
+    public void displayAvailableAccommodations(JTextArea outputArea) {
+        outputArea.setText(""); // Clear the text area first
+        outputArea.append("Available Accommodations:\n");
+        for (Accommodation accommodation : accommodations) {
+            if (accommodation.getAvailable()) {
+                outputArea.append(accommodation.toString() + "\n");
+            }
+        }
+    }
+
+    // Customer-related methods
+    public void addCustomer(String firstName, String lastName, String skillLevel) {
+        int newCustomerId = customers.size() + 1; // Generate a new ID
+        Customer newCustomer = new Customer(newCustomerId, firstName, lastName, skillLevel);
+        customers.add(newCustomer);
+        System.out.println("Customer added: " + newCustomer);
+    }
+
+    public void displayAllCustomers(JTextArea outputArea) {
+        outputArea.setText(""); // Clear the text area first
+        outputArea.append("Customers:\n");
         for (Customer customer : customers) {
-            if (customer.getCustID() == customerID) {
+            outputArea.append(customer.toString() + "\n");
+        }
+    }
+
+    // Travel Package-related methods
+    public void createPackage(int customerId, LocalDate startDate, int duration) {
+        Customer customer = findCustomerById(customerId);
+        if (customer != null) {
+            TravelPackage travelPackage = new TravelPackage(customer, startDate, duration);
+            travelPackages.add(travelPackage);
+            System.out.println("Travel package created for: " + customer.getFirstName() + " " + customer.getLastName());
+        } else {
+            System.out.println("Customer not found.");
+        }
+    }
+
+    public void addLiftPass(int customerId) {
+        TravelPackage travelPackage = findTravelPackageByCustomerId(customerId);
+        if (travelPackage != null) {
+            travelPackage.addLiftPass();
+            System.out.println("Lift pass added for: " + travelPackage.getCustomer().getFirstName() + " " + travelPackage.getCustomer().getLastName());
+        } else {
+            System.out.println("Travel package not found.");
+        }
+    }
+
+    public void addLesson(int customerId) {
+        TravelPackage travelPackage = findTravelPackageByCustomerId(customerId);
+        if (travelPackage != null) {
+            travelPackage.addLesson();
+            System.out.println("Lesson added for: " + travelPackage.getCustomer().getFirstName() + " " + travelPackage.getCustomer().getLastName());
+        } else {
+            System.out.println("Travel package not found.");
+        }
+    }
+
+    // Method to display all travel packages in a JTextArea
+    public void displayAllPackages(JTextArea outputArea) {
+        outputArea.setText(""); // Clear the text area first
+        outputArea.append("Travel Packages:\n");
+        for (TravelPackage travelPackage : travelPackages) {
+            outputArea.append(travelPackage.toString() + "\n");
+        }
+    }
+
+    // Helper methods
+    private Customer findCustomerById(int id) {
+        for (Customer customer : customers) {
+            if (customer.getCustId() == id) {
                 return customer;
             }
         }
         return null;
     }
 
-    public MtBullerResort() {
-        travelPackages = new ArrayList<TravelPackage>();
-        customers = InitialData.getInitialCustomers();
-        accommodations = InitialData.getInitialAccommodations();
-    }
-
-    public void run() {
-        int option = 0;
-        while (option != 11) {
-            System.out.println(
-                "Mt Buller Options: ------------------\n" +
-                "1. Display All Accommodation \n" +
-                "2. Display Available Accommodation \n" +
-                "3. Add Customer \n" + 
-                "4. List Customers \n" +
-                "5. Create a package \n" +
-                "6. List packages \n" +
-                "7. Add a lift pass to package \n" +
-                "8. Add lesson fees to package \n" +
-                "9. Save package to file \n" +
-                "10. Read package from file \n" +
-                "11. Quit");
-            
-            try {
-                System.out.println("Please choose an option (1-11): ");
-                option = input.nextInt();
-
-                switch (option) {
-                    case 1:
-                        allAccommodation();
-                        break;
-                    case 2:
-                        availableAccommodation();
-                        break;
-                    case 3:
-                        addCustomer();
-                        break;
-                    case 4:
-                        listCustomer();
-                        break;
-                    case 5:
-                        createPackage();
-                        break;
-                    case 6:
-                        listPackage();
-                        break;
-                    case 7:
-                        addLiftPass();
-                        break;
-                    case 8:
-                        addLesson();
-                        break;
-                    case 9:
-                        savePackage();
-                        break;
-                    case 10:
-                        readPackage();
-                        break;
-                    case 11:
-                        return;
-                    default:
-                        System.out.println("Invalid Option.");
-                        break;
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a number.");
-                input.nextLine();
+    private TravelPackage findTravelPackageByCustomerId(int customerId) {
+        for (TravelPackage tp : travelPackages) {
+            if (tp.getCustomer().getCustId() == customerId) {
+                return tp;
             }
         }
+        return null;
     }
 
-    public void allAccommodation() {
-        System.out.println("Accommodation: ");
-        for (Accommodation a : accommodations) {
-            System.out.println(a.toString());
-        }
-    }
-
-    public void availableAccommodation() {
-        System.out.println("Available Accommodation: ");
-        for (Accommodation a : accommodations) {
-            if (a.getAvailable() == true) {
-                System.out.println(a);
-            }
-        }
-    }
-
-    public void addCustomer() {
-        input.nextLine();
+    public void savePackage(JTextArea travelPackageDisplay) {
         try {
-            System.out.println("What is your name? ");
-            String fname = input.nextLine();
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("packages.dat"));
 
-            System.out.println("What is your last name? ");
-            String lname = input.nextLine();
-
-            System.out.println("Are your skills at Beginner, Intermediate, or Expert level for skiing? ");
-            String skillevel = input.nextLine().toLowerCase();
-            
-            Customer customer = new Customer(fname, lname, skillevel);
-            customers.add(customer);
-
-            System.out.println("Customer Added! Your user ID is " + customer.getCustID());
-        } catch (Exception e) {
-            System.out.println("Error adding customer. Please try again.");
-        }
-    }
-
-    public void listCustomer() {
-        System.out.println("Customers: ");
-        for (Customer c : customers) {
-            System.out.println(c);
-        }
-    }
-
-    public void createPackage() {
-        try {
-            System.out.println("What is your customer ID? ");
-            int customerID = input.nextInt();
-            input.nextLine();   
-
-            Customer sCustomer = getCustomerByID(customerID);
-            if (sCustomer == null) {
-                System.out.println("Customer cannot be found.");
-                return;
-            }
-
-            System.out.println("Enter the start date (YYYY-MM-DD): ");
-            String startDateStr = input.nextLine();
-            LocalDate startDate;
-
-            try {
-                startDate = LocalDate.parse(startDateStr);
-            } catch (Exception e) {
-                System.out.println("Invalid date format. Please use YYYY-MM-DD.");
-                return;
-            }
-
-            System.out.println("Enter the duration in days: ");
-            int duration = input.nextInt();
-            input.nextLine();
-
-            TravelPackage newPackage = new TravelPackage(sCustomer, startDate, duration);
-
-            System.out.println("Available accommodations:");
-            Accommodation selectedAccommodation = null;
-            for (Accommodation a : accommodations) {
-                if (a.getAvailable()) {
-                    System.out.println(a);
-                }
-            }
-
-            System.out.println("Enter room number for accommodation you'd like: ");
-            int roomNum = input.nextInt();
-            input.nextLine();
-
-            for (Accommodation a : accommodations) {
-                if (a.getAvailable() && a.getRoomNum() == roomNum) {
-                    selectedAccommodation = a;
-                    break;
-                }
-            }
-
-            if (selectedAccommodation != null) {
-                newPackage.setAccommodation(selectedAccommodation);
-                selectedAccommodation.setAvailable(false);
-                System.out.println("Accommodation assigned to the package.");
-            } else {
-                System.out.println("Accommodation not found or not available.");
-                return;
-            }
-
-            travelPackages.add(newPackage);
-            System.out.println("Package created successfully.");
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please enter valid data.");
-            input.nextLine();
-        }
-    }
-
-    public void listPackage() {
-        for (TravelPackage t : travelPackages) {
-            System.out.println(t);
-        }
-    }
-
-    public void addLiftPass() {
-        try {
-            System.out.println("Enter your customer ID to add a lift pass: ");
-            int customerID = input.nextInt();
-            input.nextLine();
-
-            Customer customer = getCustomerByID(customerID);
-            if (customer == null) {
-                System.out.println("Customer not found.");
-                return;
-            }
-
-            if (travelPackages.isEmpty()) {
-                System.out.println("No packages found for this customer.");
-                return;
-            }
-
-            TravelPackage travelPackage = null;
-            for (TravelPackage tp : travelPackages) {
-                if (tp.getCustomer().getCustID() == customerID) {
-                    travelPackage = tp;
-                    break;
-                }
-            }
-            if (travelPackage == null) {
-                System.out.println("No travel package found for this customer.");
-                return;
-            }
-
-            System.out.println("Choose a lift pass option:");
-            System.out.println("1. Full day pass ($26)");
-            System.out.println("2. 5-day pass (10% discount on 5-day total)");
-            System.out.println("3. Season pass ($200)");
-
-            int choice = input.nextInt();
-            double liftPassCost = 0;
-
-            switch (choice) {
-                case 1:
-                    liftPassCost = 26.00;
-                    System.out.println("Added a full day lift pass costing $26.00.");
-                    break;
-                case 2:
-                    liftPassCost = 26.00 * 5 * 0.90;
-                    System.out.println("Added a 5-day lift pass with 10% discount. Total cost: $" + liftPassCost);
-                    break;
-                case 3:
-                    liftPassCost = 200.00;
-                    System.out.println("Added a season lift pass costing $200.00.");
-                    break;
-                default:
-                    System.out.println("Invalid option. No lift pass added.");
-                    return;
-            }
-
-            travelPackage.setLiftPassCost(liftPassCost);
-            System.out.println("Lift pass successfully added to the package.");
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please enter a valid number.");
-            input.nextLine();
-        }
-    }
-
-    public void addLesson() {
-        try {
-            System.out.println("Enter your customer ID: ");
-            int customerID = input.nextInt();
-            input.nextLine();
-
-            Customer customer = getCustomerByID(customerID);
-            if (customer == null) {
-                System.out.println("Customer not found.");
-                return;
-            }
-
-            System.out.println("Adding a lesson based on your skill level...");
-            String skillevel = customer.getSkillevel().toLowerCase();
-
-            TravelPackage travelPackage = null;
-            for (TravelPackage tp : travelPackages) {
-                if (tp.getCustomer().getCustID() == customerID) {
-                    travelPackage = tp;
-                    break;
-                }
-            }
-
-            if (travelPackage == null) {
-                System.out.println("No travel package found for this customer.");
-                return;
-            }
-
-            switch (skillevel) {
-                case "beginner":
-                    travelPackage.setLessonCost(15.00);
-                    System.out.println("Added a Beginner lesson package costing $15.00.");
-                    break;
-                case "intermediate":
-                    travelPackage.setLessonCost(20.00);
-                    System.out.println("Added an Intermediate lesson package costing $20.00.");
-                    break;
-                case "expert":
-                    travelPackage.setLessonCost(25.00);
-                    System.out.println("Added an Expert lesson package costing $25.00.");
-                    break;
-                default:
-                    System.out.println("Invalid skill level entered. No package added.");
-                    return;
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please enter valid data.");
-            input.nextLine();
-        }
-    }
-
-    public void savePackage() {
-        try {
-            FileOutputStream fos = new FileOutputStream("packages.dat");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-    
-            // Write the size of each list first
             oos.writeInt(travelPackages.size());
-            for (TravelPackage tp : travelPackages) {
-                oos.writeObject(tp);
+            for (TravelPackage travelPackage : travelPackages) {
+                oos.writeObject(travelPackage);
             }
-    
+
             oos.writeInt(customers.size());
-            for (Customer c : customers) {
-                oos.writeObject(c);
+            for (Customer customer : customers) {
+                oos.writeObject(customer);
             }
-    
+
             oos.writeInt(accommodations.size());
-            for (Accommodation a : accommodations) {
-                oos.writeObject(a);
+            for (Accommodation accommodation : accommodations){
+                oos.writeObject(accommodation);
             }
-    
+
             oos.close();
-            System.out.println("Packages, customers, and accommodations have been saved successfully.");
+            System.out.println("Packages and customers have been saved successfully.");
         } catch (IOException e) {
-            System.out.println("Error saving packages, customers, and accommodations.");
+            System.out.println("Error saving packages and customers.");
             e.printStackTrace();
         }
     }
-    
 
 
-    public void readPackage() {
+    public void readPackage(JTextArea travelPackageDisplay) {
         try {
-            FileInputStream fis = new FileInputStream("packages.dat");
-            ObjectInputStream ois = new ObjectInputStream(fis);
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("packages.dat"));
     
-            // Read the number of travel packages, customers, and accommodations
             int numTravelPackages = ois.readInt();
             for (int i = 0; i < numTravelPackages; i++) {
-                travelPackages.add((TravelPackage) ois.readObject());
+                try {
+                    Object obj = ois.readObject();
+                    if (obj instanceof TravelPackage) {
+                        TravelPackage travelPackage = (TravelPackage) obj;
+                        travelPackages.add(travelPackage);
+                    } else {
+                        System.out.println("Unexpected object type found while reading TravelPackage.");
+                    }
+                } catch (ClassCastException e) {
+                    System.out.println("ClassCastException while reading TravelPackage.");
+                }
             }
-    
+
             int numCustomers = ois.readInt();
             for (int i = 0; i < numCustomers; i++) {
-                Customer customer = (Customer) ois.readObject();
-                boolean exists = false;
-    
-                // Check if the customer already exists in the list to avoid duplication
-                for (Customer existingCustomer : customers) {
-                    if (existingCustomer.getCustID() == customer.getCustID()) {
-                        exists = true;
-                        break;
+                try {
+                    Object obj = ois.readObject();
+                    if (obj instanceof Customer) {
+                        Customer customer = (Customer) obj;
+                        boolean exists = false;
+                        
+                        for (Customer existingCustomer : customers) {
+                            if (existingCustomer.getCustId() == customer.getCustId()) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) {
+                            customers.add(customer);
+                        }
+                    } else {
+                        System.out.println("Unexpected object type found while reading Customer.");
                     }
-                }
-                if (!exists) {
-                    customers.add(customer);
+                } catch (ClassCastException e) {
+                    System.out.println("ClassCastException while reading Customer.");
                 }
             }
-    
-            int numAccommodations = ois.readInt();
-            for (int i = 0; i < numAccommodations; i++) {
-                accommodations.add((Accommodation) ois.readObject());
-            }
-    
+
             ois.close();
-            System.out.println("Packages, customers, and accommodations have been loaded successfully.");
+            System.out.println("Packages and customers have been loaded successfully.");
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Error reading packages, customers, and accommodations.");
+            System.out.println("Error reading packages and customers.");
             e.printStackTrace();
         }
     }
-    
 }

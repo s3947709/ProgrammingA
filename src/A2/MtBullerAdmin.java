@@ -2,7 +2,7 @@ package A2;
 
 public class MtBullerAdmin {
     public static void main(String[] args) {
-        MtBullerResort mbr = new MtBullerResort();
-        mbr.run();
+        ResortGUI gui = new ResortGUI();
+        gui.setVisible(true);
     }
 }
