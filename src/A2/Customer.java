@@ -27,6 +27,10 @@ public class Customer implements Serializable{
         return lastName;
     }
 
+    public String getSkillLevel() {
+        return skillLevel;
+    }
+
     @Override
     public String toString() {
         return Custid + ": " + firstName + " " + lastName + " (Skill Level: " + skillLevel + ")";

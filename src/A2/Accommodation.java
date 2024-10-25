@@ -15,12 +15,33 @@ public class Accommodation implements Serializable {
         this.available = available;
     }
 
+    public Accommodation(int accID){
+        this.accID = accID;
+        this.available = false;
+    }
+
     public boolean isAvailable() {
         return available;
     }
 
     public boolean getAvailable() {
         return available;
+    }
+
+    public void setAvailable(boolean availability){
+        this.available = availability;
+    }
+
+    public int getAccId() {
+        return accID;
+    }
+
+    public String getType(){
+        return type;
+    }
+
+    public double getPrice(){
+        return price;
     }
 
     public String toString() {

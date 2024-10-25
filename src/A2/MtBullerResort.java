@@ -1,5 +1,4 @@
 package A2;
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,7 +7,7 @@ import java.io.ObjectOutputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 public class MtBullerResort {
@@ -22,7 +21,7 @@ public class MtBullerResort {
         customers = new ArrayList<>();
         travelPackages = new ArrayList<>();
 
-        // Initialize some default accommodations
+        // Initialize accommodations
         accommodations.add(new Accommodation(1,"Lodge (2ppl)", 295.00,true));
         accommodations.add(new Accommodation(2,"Hotel (4ppl)", 330.00,true));
         accommodations.add(new Accommodation(3,"Appartment (6ppl)", 802.00,true));
@@ -34,13 +33,13 @@ public class MtBullerResort {
         accommodations.add(new Accommodation(9,"Appartment Penthouse (8ppl)", 1858.00,true));
         accommodations.add(new Accommodation(10,"Hotel (4ppl)", 308.00,true));
 
-        // Initialize some default customers
+        // Initialize customers
         customers.add(new Customer(1,"Jarrod", "Parker", "beginner"));
         customers.add(new Customer(2,"Xavier", "Smith", "intermediate"));
         customers.add(new Customer(3,"Allison", "Johnson", "expert"));
     }
 
-    // Accommodation-related methods
+    // Function to show all the given accommodations
     public void displayAllAccommodations(JTextArea outputArea) {
         outputArea.setText(""); // Clear the text area first
         outputArea.append("All Accommodations:\n");
@@ -49,7 +48,7 @@ public class MtBullerResort {
         }
     }
 
-    // Method to display available accommodations in a JTextArea
+    // Function to be able to show all the available accommodations
     public void displayAvailableAccommodations(JTextArea outputArea) {
         outputArea.setText(""); // Clear the text area first
         outputArea.append("Available Accommodations:\n");
@@ -60,7 +59,7 @@ public class MtBullerResort {
         }
     }
 
-    // Customer-related methods
+    // Function to add a customer
     public void addCustomer(String firstName, String lastName, String skillLevel) {
         int newCustomerId = customers.size() + 1; // Generate a new ID
         Customer newCustomer = new Customer(newCustomerId, firstName, lastName, skillLevel);
@@ -68,56 +67,83 @@ public class MtBullerResort {
         System.out.println("Customer added: " + newCustomer);
     }
 
+    // Function to display list of all customers
     public void displayAllCustomers(JTextArea outputArea) {
-        outputArea.setText(""); // Clear the text area first
+        outputArea.setText(""); 
         outputArea.append("Customers:\n");
         for (Customer customer : customers) {
             outputArea.append(customer.toString() + "\n");
         }
     }
 
-    // Travel Package-related methods
-    public void createPackage(int customerId, LocalDate startDate, int duration) {
+    // Function to find the accommmodation through its ID
+    private Accommodation findAccommodationById(int id) {
+        for (Accommodation accommodation : accommodations) {
+            if (accommodation.getAccId() == id) {
+                return accommodation;
+            }
+        }
+        return null;
+    }
+
+    // Create Package function
+    public void createPackage(int accid, int customerId, LocalDate startDate, int duration) {
         Customer customer = findCustomerById(customerId);
-        if (customer != null) {
+        Accommodation accommodation = findAccommodationById(accid);
+        
+        if (customer != null && accommodation != null) {
             TravelPackage travelPackage = new TravelPackage(customer, startDate, duration);
+            travelPackage.setAccommodation(accommodation);
             travelPackages.add(travelPackage);
             System.out.println("Travel package created for: " + customer.getFirstName() + " " + customer.getLastName());
         } else {
-            System.out.println("Customer not found.");
+            System.out.println("Customer or accommodation not found.");
         }
     }
 
+    // Add Lift Pass function
     public void addLiftPass(int customerId) {
         TravelPackage travelPackage = findTravelPackageByCustomerId(customerId);
         if (travelPackage != null) {
-            travelPackage.addLiftPass();
-            System.out.println("Lift pass added for: " + travelPackage.getCustomer().getFirstName() + " " + travelPackage.getCustomer().getLastName());
+            String[] options = {"Full Day Lift Pass", "5 Day Lift Pass", "Season Lift Pass"};
+            String selectedOption = (String) JOptionPane.showInputDialog(null, 
+                    "Choose a Lift Pass \nWARNING WILL OVERWRITE IF ALREADY HAVE ONE:", "Lift Pass Options",
+                    JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+            if (selectedOption != null) {
+                travelPackage.addLiftPass(selectedOption);
+                System.out.println("Lift pass added for: " + travelPackage.getCustomer().getFirstName() +
+                        " " + travelPackage.getCustomer().getLastName() + " with option: " + selectedOption);
+            } else {
+                System.out.println("Lift pass addition cancelled.");
+            }
         } else {
             System.out.println("Travel package not found.");
         }
     }
 
+    // Add Lesson function
     public void addLesson(int customerId) {
         TravelPackage travelPackage = findTravelPackageByCustomerId(customerId);
         if (travelPackage != null) {
-            travelPackage.addLesson();
-            System.out.println("Lesson added for: " + travelPackage.getCustomer().getFirstName() + " " + travelPackage.getCustomer().getLastName());
+            travelPackage.addLesson(travelPackage.getCustomer().getSkillLevel());
+            System.out.println("Lesson added based on skill level for: " + travelPackage.getCustomer().getFirstName() +
+                    " " + travelPackage.getCustomer().getLastName());
         } else {
             System.out.println("Travel package not found.");
         }
-    }
+    }      
 
-    // Method to display all travel packages in a JTextArea
+    // Displaying all packages function
     public void displayAllPackages(JTextArea outputArea) {
-        outputArea.setText(""); // Clear the text area first
+        outputArea.setText("");
         outputArea.append("Travel Packages:\n");
         for (TravelPackage travelPackage : travelPackages) {
             outputArea.append(travelPackage.toString() + "\n");
         }
     }
 
-    // Helper methods
+    // Function to find the customer through their id
     private Customer findCustomerById(int id) {
         for (Customer customer : customers) {
             if (customer.getCustId() == id) {
@@ -127,6 +153,7 @@ public class MtBullerResort {
         return null;
     }
 
+    // Function for finding the travel package through a customers id
     private TravelPackage findTravelPackageByCustomerId(int customerId) {
         for (TravelPackage tp : travelPackages) {
             if (tp.getCustomer().getCustId() == customerId) {
@@ -136,6 +163,28 @@ public class MtBullerResort {
         return null;
     }
 
+    // Function to get all the available accommodations ready
+    public List<String> getAvailableAccommodations() {
+        List<String> availableAccommodations = new ArrayList<>();
+        for (Accommodation accommodation : accommodations) {
+            if (accommodation.isAvailable()) {
+                availableAccommodations.add(accommodation.getAccId() + ": " + accommodation.getType());
+            }
+        }
+        return availableAccommodations;
+    }
+
+    // Function to set the accommodations availability
+    public void setAccommodationAvailability(int accommodationId, boolean availability) {
+        for (Accommodation accommodation : accommodations) {
+            if (accommodation.getAccId() == accommodationId) {
+                accommodation.setAvailable(availability);
+                break;
+            }
+        }
+    }
+
+    // Function to save package
     public void savePackage(JTextArea travelPackageDisplay) {
         try {
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("packages.dat"));
@@ -163,7 +212,7 @@ public class MtBullerResort {
         }
     }
 
-
+    // Function to load package
     public void readPackage(JTextArea travelPackageDisplay) {
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream("packages.dat"));
