@@ -34,9 +34,9 @@ public class MtBullerResort {
         accommodations.add(new Accommodation(10,"Hotel (4ppl)", 308.00,true));
 
         // Initialize customers
-        customers.add(new Customer(1,"Jarrod", "Parker", "beginner"));
-        customers.add(new Customer(2,"Xavier", "Smith", "intermediate"));
-        customers.add(new Customer(3,"Allison", "Johnson", "expert"));
+        customers.add(new Customer(1,"Jarrod", "Parker", "beginner", 25));
+        customers.add(new Customer(2,"Xavier", "Smith", "intermediate", 36));
+        customers.add(new Customer(3,"Allison", "Johnson", "expert", 19));
     }
 
     // Function to show all the given accommodations
@@ -60,9 +60,9 @@ public class MtBullerResort {
     }
 
     // Function to add a customer
-    public void addCustomer(String firstName, String lastName, String skillLevel) {
+    public void addCustomer(String firstName, String lastName, String skillLevel, int age) {
         int newCustomerId = customers.size() + 1; // Generate a new ID
-        Customer newCustomer = new Customer(newCustomerId, firstName, lastName, skillLevel);
+        Customer newCustomer = new Customer(newCustomerId, firstName, lastName, skillLevel, age);
         customers.add(newCustomer);
         System.out.println("Customer added: " + newCustomer);
     }

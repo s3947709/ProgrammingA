@@ -9,7 +9,7 @@ import java.util.List;
 public class ResortGUI extends JFrame implements ActionListener {
 
     private JTabbedPane JtabbedPane;
-    private JTextField DateInput, DurationInput, CustIdInput, FNameInput, LNameInput;
+    private JTextField DateInput, DurationInput, CustIdInput, FNameInput, LNameInput, AgeInput;
     private JComboBox<String> AvailableAccommodationDropdown;
     private JButton addLiftPassButton, addLessonsButton, viewTravelPackagesButton1, createTravelPackageButton;
     private JButton readSavedPackagesButton, savePackageButton, listCustomersButton, addCustomerButton;
@@ -78,9 +78,11 @@ public class ResortGUI extends JFrame implements ActionListener {
         JLabel FNameLabel = new JLabel("First Name:");
         JLabel LNameLabel = new JLabel("Last Name:");
         JLabel SkillL = new JLabel("Skill Level:");
+        JLabel ageLabel = new JLabel("Age: ");
 
         FNameInput = new JTextField();
         LNameInput = new JTextField();
+        AgeInput = new JTextField();
 
         // Skill level options
         String[] skillLevels = {"Beginner", "Intermediate", "Expert"};
@@ -104,6 +106,8 @@ public class ResortGUI extends JFrame implements ActionListener {
         CustomerTab.add(LNameInput);
         CustomerTab.add(SkillL);
         CustomerTab.add(SkillLevelOption);
+        CustomerTab.add(ageLabel);
+        CustomerTab.add(AgeInput);
         CustomerTab.add(addCustomerButton);
         CustomerTab.add(listCustomersButton);
         CustomerTab.add(customerScrollPane);
@@ -181,10 +185,17 @@ public class ResortGUI extends JFrame implements ActionListener {
             AccommodationDisplayBox.setText("");
             resort.displayAvailableAccommodations(AccommodationDisplayBox);
         } else if (e.getSource() == addCustomerButton) {
-            String firstName = FNameInput.getText();
-            String lastName = LNameInput.getText();
-            String skillLevel = (String) SkillLevelOption.getSelectedItem();
-            resort.addCustomer(firstName, lastName, skillLevel);
+            try{
+                String firstName = FNameInput.getText();
+                String lastName = LNameInput.getText();
+                String skillLevel = (String) SkillLevelOption.getSelectedItem();
+                int age = Integer.parseInt(AgeInput.getText());
+                resort.addCustomer(firstName, lastName, skillLevel,age);
+                CustomerDisplayBox.setText("Customer Added!");
+            }
+            catch (Exception ex){
+                CustomerDisplayBox.setText("Error: Invalid INput");
+            }
         } else if (e.getSource() == listCustomersButton) {
             CustomerDisplayBox.setText("");
             resort.displayAllCustomers(CustomerDisplayBox);

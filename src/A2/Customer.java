@@ -7,12 +7,14 @@ public class Customer implements Serializable{
     private String firstName;
     private String lastName;
     private String skillLevel;
+    private int age;
 
-    public Customer(int Custid, String firstName, String lastName, String skillLevel) {
+    public Customer(int Custid, String firstName, String lastName, String skillLevel, int age) {
         this.Custid = Custid;
         this.firstName = firstName;
         this.lastName = lastName;
         this.skillLevel = skillLevel;
+        this.age = age;
     }
 
     public int getCustId() {
@@ -33,6 +35,6 @@ public class Customer implements Serializable{
 
     @Override
     public String toString() {
-        return Custid + ": " + firstName + " " + lastName + " (Skill Level: " + skillLevel + ")";
+        return Custid + ": " + firstName + " " + lastName + " Age: " + age + " (Skill Level: " + skillLevel + ") ";
     }
 }
